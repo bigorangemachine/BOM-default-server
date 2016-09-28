@@ -8,7 +8,7 @@ var _ = require('underscore'),//http://underscorejs.org/
 var express=require('express');
 var app=express();
 
-var doc_root='/projects/node-default-server/';doc_root='/Users/McOrange/localhost/www/node-default-server/';
+var doc_root='/projects/node-default-server/';
 
 
 
