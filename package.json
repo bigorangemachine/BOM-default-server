@@ -14,9 +14,10 @@
   },
   "homepage": "https://github.com/bigorangemachine/BOM-default-server#readme",
   "dependencies": {
-    "express": "^4.14.0"
+    "express": "^4.14.0",
+    "yargs": "^5.0.0"
   },
-  "scripts":{
+  "scripts": {
     "preinstall": "mkdir -p _cache/ && chmod 777 _cache/",
     "install": "node install.js",
     "start": "node index.js",
