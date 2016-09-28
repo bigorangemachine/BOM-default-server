@@ -20,3 +20,10 @@ var server443=app.listen(443, function () {
 
     console.log("Example app listening at https://%s:%s", host, port)
 });
+
+var server666=app.listen(666, function () {
+    var host=server666.address().address,
+        port=server666.address().port;
+
+    console.log("Example app listening at http://%s:%s", host, port)
+});
