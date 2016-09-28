@@ -1,0 +1,22 @@
+{
+  "name": "node-default-server",
+  "version": "0.0.0",
+  "description": "Default Express Server for the LoLz",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bigorangemachine/BOM-default-server.git"
+  },
+  "author": "BigOrangeMachine",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/bigorangemachine/BOM-default-server/issues"
+  },
+  "homepage": "https://github.com/bigorangemachine/BOM-default-server#readme",
+  "dependencies": {
+    "express": "^4.14.0"
+  }
+}
