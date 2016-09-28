@@ -3,9 +3,6 @@
   "version": "0.0.0",
   "description": "Default Express Server for the LoLz",
   "main": "index.js",
-  "scripts": {
-    "test": "node test.js"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/bigorangemachine/BOM-default-server.git"
@@ -18,5 +15,12 @@
   "homepage": "https://github.com/bigorangemachine/BOM-default-server#readme",
   "dependencies": {
     "express": "^4.14.0"
+  },
+  "scripts":{
+    "preinstall": "mkdir -p _cache/ && chmod 777 _cache/",
+    "install": "node install.js",
+    "start": "node index.js",
+    "uninstall": "node uninstall.js && rm -rf _cache",
+    "test": "node test.js"
   }
 }
