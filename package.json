@@ -1,6 +1,6 @@
 {
   "name": "node-default-server",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Default Express Server for the LoLz",
   "main": "index.js",
   "repository": {
