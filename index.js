@@ -1,10 +1,3 @@
-var _ = require('underscore'),//http://underscorejs.org/
-    merge = require('merge'),//allows deep merge of objects
-    fs = require('fs'),
-    url = require('url'),
-    utils = require('bom-utils'),
-    vars = require('bom-utils/vars');
-
 var express=require('express');
 var app=express();
 
