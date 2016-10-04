@@ -48,6 +48,11 @@ console.log("output",output," req.param('megaphone'): ",req.param('megaphone'));
         });
 
     };
+console.warn("UNTEST DEV");
+var bodyParser = require('body-parser');
+app.use(bodyParser.json()); // support json encoded bodies
+app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
+console.warn("\\\\ UNTEST DEV");
 
 app.get('*', generic_app);
 app.post('*', generic_app);
