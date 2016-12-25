@@ -22,6 +22,7 @@ module.exports = function(process, fs, root_params){
                 {'arg':'whichnode','var_set':'root_params.whichnode','split':base_sep, 'type':'string'},
                 {'arg':'cronfile','var_set':'root_params.cronfile','split':base_sep, 'type':'string'},
                 {'arg':'logpath','var_set':'root_params.logpath','split':base_sep, 'type':'string'},
+                {'arg':'ports','var_set':'root_params.ports','split':base_sep, 'type':'string'},
                 {'arg':'-doremove','var_set':'root_params.doremove'},
                 {'arg':'-silent','var_set':'root_params.silent'}
             ],
