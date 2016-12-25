@@ -221,7 +221,7 @@ console.log("asset_root: "+asset_root+" \n\tself.default_files.notfound: ",self.
                 res.sendFile(asset_root + req_file, 'binary'); //next(); <- not needed right now
             }
         });
-do_log=true;
+
         if(do_log){//log posts
             self.request_logger(req);
         }
