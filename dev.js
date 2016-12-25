@@ -1,11 +1,6 @@
 
 //modules
-var _ = require('underscore'),//http://underscorejs.org/
-    merge = require('merge'),//allows deep merge of objects
-    express = require('express'),
-    app = express(),
-    fs = require('fs'),
-    url = require('url'),
+var fs = require('fs'),
     utils = require('bom-utils'),
     vars = require('bom-utils/vars');
 //custom modules - for WIP

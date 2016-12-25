@@ -69,10 +69,10 @@ module.exports = function(){
 
         opts.silent=(typeof(opts.silent)==='boolean'?opts.silent:false);
         opts.ports=(typeof(opts.ports)==='object' && opts.ports instanceof Array && opts.ports.length>0?opts.ports:['80','443','3000']);
-        opts.doc_root=(typeof(opts.doc_root)==='string'?opts.doc_root:'./');
+        opts.doc_root=(typeof(opts.doc_root)==='string'?utils.check_strip_last(opts.doc_root,'/') + '/':'./');
 
         opts.file_index=(typeof(opts.file_index)==='string'?opts.file_index:'index.html');
-        opts.file_notfound=(typeof(opts.file_notfound)==='string'?opts.file_notfound:'404.html');
+        opts.file_notfound=(typeof(opts.file_notfound)==='string'?opts.file_notfound:'whale.html');
         opts.log_path=(typeof(opts.log_path)==='string'?opts.log_path:'_cache/');
         opts.asset_path=(typeof(opts.asset_path)==='string'?opts.asset_path:'www-assets/');
 
@@ -202,7 +202,8 @@ module.exports = function(){
             asset_root=self.doc_root + utils.check_strip_last(self.asset_path,'/') + '/',
             req_file=utils.check_strip_first(url.parse(req.url).pathname,'/'),//clean off any query strings
             arg_payload={'request_this':instanceIn,'res':res,'res':req, 'method':reqMethod};
-console.log("req.url: ",req.url,"\n\tself.default_files: ",self.default_files);
+        req_file=(req_file.length===0?self.default_files.index:req_file);
+
         //filters T.^
         if(reqMethod==='GET'){
             hook_ins.icallback('get_request',arg_payload);
@@ -213,7 +214,7 @@ console.log("req.url: ",req.url,"\n\tself.default_files: ",self.default_files);
         }else if(reqMethod==='DELETE'){
             hook_ins.icallback('delete_request',arg_payload);
         }
-console.log("asset_root: "+asset_root+" \n\tself.default_files.notfound: ",self.default_files.notfound);
+
         fs.stat(asset_root + req_file, function(err, stats){
             if(err || !stats.isFile()){
                 res.sendFile(asset_root+self.default_files.notfound); //next(); <- not needed right now
