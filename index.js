@@ -245,7 +245,7 @@ module.exports = function(){
             //for(var k in req){
             for(var k in output){
                 output[k]=req[k];
-console.log(k,' - ',(req[k]!==null && typeof(req[k])==='object'?req[k].constructor.name:req[k]));
+//console.log(k,' - ',(req[k]!==null && typeof(req[k])==='object'?req[k].constructor.name:req[k]));
             }
 
         fs.writeFile(self.doc_root + utils.check_strip_last(self.log_path,'/') + '/' + 'capture_req-'+utils.getRandomInt(111111,999999).toString()+'-'+( new Date().getTime().toString() )+'.json',JSON.stringify(output),function(err){
