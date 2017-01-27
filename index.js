@@ -206,21 +206,26 @@ module.exports = function(){
             asset_root=self.doc_root + utils.check_strip_last(self.asset_path,'/') + '/',
             parsed_url_obj=url.parse(reqest_url),
             port=parsed_url_obj.port,
-            req_file=utils.check_strip_first(parsed_url_obj.pathname,'/'),//clean off any query strings
+            req_file=utils.check_strip_first(parsed_url_obj.pathname,'/'),//clean off any query strings by using pathname
             arg_payload={
                 'request_this':instanceIn,
                 'res':res,
                 'req':req,
                 'method':reqMethod,
+                'route_result':{},
                 'valid_routes':[],
                 'is_asset':false,
                 'is_requestable':false
             };
-        req_file=(req_file.length===0 || req_file.indexOf('./')!==-1 || req_file.indexOf('../')!==-1?self.default_files.index:req_file);
+
+        do{
+            req_file=req_file.replace(/(^\.\/)|(\.{2,}\/+)/gi,'');
+        }while(req_file.indexOf('./')===0);//just be sure - file injection
+        req_file=(req_file.length===0?self.default_files.index:req_file);
         if(!self.silent){console.log("[DefaultHTTPServer] Begining Request:\n\tURL: ",reqest_url,"\n\tDate: ",reqstamp.toDateString());}
         fs.stat(asset_root + req_file, function(err, stats){//resolve assets first
             if(err || !stats.isFile()){
-                req_file=self.default_files.notfound;
+                //req_file=self.default_files.notfound;
                 //res.sendFile(asset_root+self.default_files.notfound); //next(); <- not needed right now
             }else{
                 arg_payload.is_asset=true;
@@ -233,33 +238,35 @@ module.exports = function(){
                         checkedRoutes.forEach(function(v,i,arr){
                             if(checkedRoutes[i].success){
                                 if(!do_route){arg_payload.valid_routes.push(self.listeners[ (checkedRoutes[i]) ]);}
-                                do_route=(!do_route?checkedRoutes[i].indexkey:do_route);
+                                do_route=(!do_route?checkedRoutes[i]:do_route);
                             }
                         });
                     }
+                    arg_payload.route_result=(do_route?do_route.result:arg_payload.route_result);
                     //filters T.^
                     if(reqMethod==='GET'){hook_ins.icallback('get_request',arg_payload);}
                     else if(reqMethod==='POST'){hook_ins.icallback('post_request',arg_payload);}
                     else if(reqMethod==='PUT'){hook_ins.icallback('put_request',arg_payload);}
                     else if(reqMethod==='DELETE'){hook_ins.icallback('delete_request',arg_payload);}
 
-                    if(do_route && self.listeners[do_route] instanceof HTTPHandlerModel){
-                        if(!self.silent){console.log("[DefaultHTTPServer] Serving up route '"+do_route+"'.");}
-                        self.listeners[do_route].action_handler(arg_payload);
+                    if(do_route && self.listeners[do_route.indexkey] instanceof HTTPHandlerModel){
+                        if(!self.silent){console.log("[DefaultHTTPServer] Serving up route '"+do_route.indexkey+"'.");}
+
+                        self.listeners[do_route.indexkey].action_handler(arg_payload);
                     }else if(arg_payload.is_asset && arg_payload.is_requestable){
                         if(!self.silent){console.log("[DefaultHTTPServer] Serving up asset file '"+asset_root + req_file+"'.");}
                         res.sendFile(asset_root + req_file, 'binary');
                     }else{
                         if(!self.silent){console.log("[DefaultHTTPServer] Serving up failure '"+asset_root+self.default_files.notfound+"' from attempted '"+reqest_url+"'.");}
-                        res.sendFile(asset_root+self.default_files.notfound);
+                        res.status(404).sendFile(asset_root+self.default_files.notfound);
                     }
                     if(do_log){self.request_logger(req);}//log posts
                     if(!self.silent){console.log("[DefaultHTTPServer] End Request:\n\tURL: ",reqest_url,"\n\tDate: ",reqstamp.toDateString());}
                 },
                 listener_match=false,
-                task_schema={'complete':false,'success':false,'indexkey':false,'callback':false},
+                task_schema={'complete':false,'success':false,'indexkey':false,'result':false,'callback':false},
                 tasks=[],
-                task_check=function(tasks){
+                task_check=function(tasks){//did all them finish?
                     var found=0,maxfound=tasks.length;
                     tasks.forEach(function(v,i,arr){if(v.complete){found++;}});
                     if(found>=maxfound){resolve_request(tasks);}
@@ -283,6 +290,7 @@ module.exports = function(){
                                 self.listeners[key].doesMatch(req_file,reqMethod,port,function(err, res){
                                     if(!err || err===null){
                                         tmp_schema.success=true;
+                                        tmp_schema.result=res;
                                         arg_payload.is_requestable=true;
                                     }
                                     tmp_schema.complete=true;

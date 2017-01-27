@@ -25,15 +25,18 @@ fs.stat(doc_root, function(err, stats){
     if((!err || err===null) && stats.isDirectory()){
         function build_route(){
 console.log("root_params.ports: ",root_params.ports);
-            gen_HTTP.add_route('ASDF',['POST','GET'],root_params.ports,function(){
-console.log("ASDF RAN!");
+            gen_HTTP.add_route('ASDF',['POST','GET'],root_params.ports,function(pkg,nextFunc){
+console.log("ASDF RAN!",pkg);
+                setTimeout(function(){
+                    console.log("nextFunc!!!");
+                    nextFunc(null,{'asdf':'foo'});
+                },1500);
                 //return true;
             },
             function(pkg){
                 for(var k in pkg){
-                    console.log("K!: ",k);
+                    console.log("pkg."+k);
                 }
-console.log("ACTION ASDF RAN!");
             });
         }
         var http_opts={'ports':root_params.ports,'doc_root':doc_root,'silent':false};

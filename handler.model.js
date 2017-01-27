@@ -47,6 +47,7 @@ module.exports = function(){//dependancies
             matched_indexes.push(NaN);//fail the index but set a positive result check
         }else{
             self.routes.forEach(function(v,i,arr){
+
                 if(v instanceof RegExp){
                     var regexp_results=uriIn.match(v);
                     if(typeof(regexp_results)==='object' && regexp_results.length>0){
@@ -84,7 +85,6 @@ module.exports = function(){//dependancies
             test_handler_res=false;
             binded_next();
         }else{
-console.log("TYPE: ",typeof(self.test_handler));
             test_handler_res=(typeof(self.test_handler)==='function'?self.test_handler(output, binded_next):true);
             if(typeof(test_handler_res)==='boolean'){did_sync_resolve=true;}//no async needed
             if(did_sync_resolve){
