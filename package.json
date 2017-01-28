@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "node dev.js ports=3000",
-    "dev-install": "mkdir -p ./_cache/ && chmod 777 ./_cache/",
-    "uninstall": "node uninstall.js && rm -rf ./_cache/",
+    "dev-install": "mkdir -p _cache/ && chmod 777 _cache/",
+    "uninstall": "node uninstall.js && rm -rf _cache/",
     "test": "node test.js"
   },
   "repository": {
