@@ -50,7 +50,7 @@ module.exports = function(){//dependancies
 
                 if(v instanceof RegExp){
                     var regexp_results=uriIn.match(v);
-                    if(typeof(regexp_results)==='object' && regexp_results.length>0){
+                    if(regexp_results!==null && typeof(regexp_results)==='object' && regexp_results.length>0){
                         matched_indexes.push(i);
                     }
                 }else if(typeof(v)==='string' && uriIn===v){
