@@ -315,13 +315,13 @@ module.exports = function(){
         if(typeof(uri)==='string' || uri instanceof RegExp){uri=[uri];}
         if(typeof(ports)==='string' || typeof(ports)==='number'){ports=[ports];}
         if(typeof(methods)==='string'){methods=[methods];}
-console.log("B4 uri: ",uri," ports: ",ports);
+//console.log("B4 uri: ",uri," ports: ",ports);
         if(!(uri instanceof Array)){throw new Error("[DefaultHTTPServer] add_route() first argument is not instanceof RegExp/Array/String.");}
         if(!(methods instanceof Array)){throw new Error("[DefaultHTTPServer] add_route() second argument is not typeof array/string.");}
         if(!(ports instanceof Array)){throw new Error("[DefaultHTTPServer] add_route() third argument is not typeof array/number/string.");}
         if(typeof(handlerFunc)!=='undefined' && typeof(handlerFunc)!=='function'){throw new Error("[DefaultHTTPServer] add_route() fourth argument is not a function.");}
         if(typeof(actionFunc)!=='undefined' && typeof(actionFunc)!=='function'){throw new Error("[DefaultHTTPServer] add_route() fifth argument is not a function.");}
-console.log("AF uri: ",uri," ports: ",ports);
+//console.log("AF uri: ",uri," ports: ",ports);
         for(var i=0;i<uri.length;i++){
             if(!(typeof(uri[i])==='string' || uri[i] instanceof RegExp)){throw new Error("[DefaultHTTPServer] add_route() first argument must be a list only containing String/RegExp types: provided '"+uri[i].toString()+"'.");}
         }
