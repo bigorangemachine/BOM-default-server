@@ -306,7 +306,7 @@ module.exports = function(){
                                 task_check(tasks);
                             }else{
 //console.log("-"+key,"-\nreq_file: ",req_file,"\n\tport",port,"self.listeners[key]: ",self.listeners[key],"\n\t",self.listeners[key].constructor);
-                                self.listeners[key].doesMatch(req_file,reqMethod,port,req,function(err, resp){
+                                self.listeners[key].doesMatch(req_file,reqMethod,port,req.body,function(err, resp){
                                     if(!err || err===null){
                                         tmp_schema.success=true;
                                         tmp_schema.result=resp;
