@@ -20,13 +20,13 @@ module.exports = function(){
                 generic_app=function(method){
                     method=method.trim().toUpperCase();
                     return function(req, res){//express detects number of args :/ ?
-                        self.request_handler.apply(self, [this, req, res, method]);
+                        self.request_handler.apply(self, [this, req, res, method]);//this is coming through as node root - chage this!
                     };
                 },
                 standup_port=function(portNo){
                     return function(err,boolRes){
                         if(!err || err===null){//absence of an error -> We're good!
-                            self.listeners['port_'+portNo]=new HTTPListenerModel({
+                            self.listeners['port_'+portNo]=self.listener_schema({
                                 'port':portNo,
                                 'instance':express_obj.listen(portNo, function(){
                                     var address_obj=self.listeners['port_'+portNo].instance.address(),
@@ -42,8 +42,11 @@ module.exports = function(){
                         }
                     };
                 };
+            express_obj.disable('x-powered-by');
+            self.hook_ins.icallback('pre_use',{'express':express_obj});
             express_obj.use(bodyParser.json()); // support json encoded bodies
             express_obj.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies -> So we can parse POST data
+            self.hook_ins.icallback('post_use',{'express':express_obj});
 
             self.ports.forEach(function(v,i,arr){
                 var port=(typeof(v)==='string' || typeof(v)==='number'?v.toString():false);
@@ -52,7 +55,7 @@ module.exports = function(){
                 }
                 if(port){//valid
                     self.isPortTaken(port,standup_port(v));
-                    arr[i]=(v instanceof HTTPHandlerModel?v:new HTTPHandlerModel({'ports':port}));//eventually I will allow individual notfound/index files to be declared
+                    arr[i]=(v instanceof HTTPHandlerModel?v:self.handler_schema({'ports':port}));//eventually I will allow individual notfound/index files to be declared
                 }
             });
 
@@ -108,6 +111,8 @@ module.exports = function(){
                         'notfound':opts.file_notfound
                     },
                     'hook_ins':new GLaDioS({
+                        'pre_use': (typeof(opts.hook_ins.pre_use)==='function'?opts.hook_ins.pre_use:false),
+                        'post_use': (typeof(opts.hook_ins.post_use)==='function'?opts.hook_ins.post_use:false),
                         'get_request': (typeof(opts.hook_ins.get_request)==='function'?opts.hook_ins.get_request:false),
                         'post_request': (typeof(opts.hook_ins.post_request)==='function'?opts.hook_ins.post_request:false),
                         'put_request': (typeof(opts.hook_ins.put_request)==='function'?opts.hook_ins.put_request:false),
@@ -116,6 +121,8 @@ module.exports = function(){
                 }
             };
 
+            self._SCOPE_.protected_opts.hook_ins.change_text('pre_use', '[DefaultHTTPServer-hook_ins] Before default properties are set using \'express.use()\'');
+            self._SCOPE_.protected_opts.hook_ins.change_text('post_use', '[DefaultHTTPServer-hook_ins] After default properties are set using \'express.use()\'');
             self._SCOPE_.protected_opts.hook_ins.change_text('get_request', '[DefaultHTTPServer-hook_ins] When get request');
             self._SCOPE_.protected_opts.hook_ins.change_text('post_request', '[DefaultHTTPServer-hook_ins] When post request');
             self._SCOPE_.protected_opts.hook_ins.change_text('put_request', '[DefaultHTTPServer-hook_ins] When put request');
@@ -196,6 +203,9 @@ module.exports = function(){
     DefaultHTTPServer.prototype.handler_schema=function(opts) {
         return new HTTPHandlerModel(opts);
     };
+    DefaultHTTPServer.prototype.listener_schema=function(opts){
+        return new HTTPListenerModel(opts);
+    };
 
     DefaultHTTPServer.prototype.request_handler=function(instanceIn, req, res, reqMethod) {
         var self=this,
@@ -235,19 +245,26 @@ module.exports = function(){
             var resolve_request=function(checkedRoutes){
                     var do_route=false;
                     if(arg_payload.is_requestable && checkedRoutes.length>0){
-                        checkedRoutes.forEach(function(v,i,arr){
+                        checkedRoutes.forEach(function(v,i,arr){//after iterating through the 'self.listeners' and processing them
                             if(checkedRoutes[i].success){
+                                //set the first found - this is temp... probably need to write better matching -> for now just do the first found
                                 if(!do_route){arg_payload.valid_routes.push(self.listeners[ (checkedRoutes[i]) ]);}
                                 do_route=(!do_route?checkedRoutes[i]:do_route);
                             }
                         });
                     }
+
                     arg_payload.route_result=(do_route?do_route.result:arg_payload.route_result);
+
                     //filters T.^
                     if(reqMethod==='GET'){hook_ins.icallback('get_request',arg_payload);}
                     else if(reqMethod==='POST'){hook_ins.icallback('post_request',arg_payload);}
                     else if(reqMethod==='PUT'){hook_ins.icallback('put_request',arg_payload);}
                     else if(reqMethod==='DELETE'){hook_ins.icallback('delete_request',arg_payload);}
+
+                    res.routed={'req_file':req_file};//pass into middleware
+                    for(var k in arg_payload){
+                        if(utils.obj_valid_key(arg_payload, k) && k!=='req' && k!=='res'){res.routed[k]=arg_payload[k];}}
 
                     if(do_route && self.listeners[do_route.indexkey] instanceof HTTPHandlerModel){
                         if(!self.silent){console.log("[DefaultHTTPServer] Serving up route '"+do_route.indexkey+"'.");}
@@ -264,7 +281,7 @@ module.exports = function(){
                     if(!self.silent){console.log("[DefaultHTTPServer] End Request:\n\tURL: ",reqest_url,"\n\tDate: ",reqstamp.toDateString());}
                 },
                 listener_match=false,
-                task_schema={'complete':false,'success':false,'indexkey':false,'result':false,'callback':false},
+                task_schema={'complete':false,'success':false,'indexkey':false,'result':false,'callback':false,'model':false},
                 tasks=[],
                 task_check=function(tasks){//did all them finish?
                     var found=0,maxfound=tasks.length;
@@ -281,9 +298,11 @@ module.exports = function(){
                             if(self.listeners[key] instanceof HTTPListenerModel && self.listeners[key].port===port){//generic listener is valid
                                 tmp_schema.success=true;
                                 tmp_schema.complete=true;
+                                tmp_schema.model='listener';
                                 task_check(tasks);
                             }else if(!(self.listeners[key] instanceof HTTPHandlerModel)){
                                 tmp_schema.complete=true;
+                                tmp_schema.model='handler';
                                 task_check(tasks);
                             }else{
 //console.log("-"+key,"-\nreq_file: ",req_file,"\n\tport",port,"self.listeners[key]: ",self.listeners[key],"\n\t",self.listeners[key].constructor);
@@ -337,6 +356,9 @@ module.exports = function(){
         return index_stamp;
     };
 
+    DefaultHTTPServer.prototype.express=function() {
+        return express_obj;
+    };
     DefaultHTTPServer.prototype.request_logger=function(req) {
         var self=this,
             output={//what are we capturing in req
