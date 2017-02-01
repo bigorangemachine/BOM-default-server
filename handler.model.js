@@ -30,7 +30,7 @@ module.exports = function(){//dependancies
             arr[i]=v.toString();
         });
     }
-    HTTPHandlerModel.prototype.doesMatch=function(uriIn,method,portIn,callbackFunc){//callbackFunc(err, responseObj)
+    HTTPHandlerModel.prototype.doesMatch=function(uriIn,method,portIn,req,callbackFunc){//callbackFunc(err, responseObj)
         var self=this,
             output={},
             isErr=false,
@@ -61,6 +61,7 @@ module.exports = function(){//dependancies
 
         if(matched_indexes.length===0){isErr=genErr;}
         output={
+            'req':req,
             'error':isErr,
             'result':{},
             'uri':uriIn,

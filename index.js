@@ -291,7 +291,7 @@ module.exports = function(){
             for(var k in self.listeners){
                 //uriIn,method,portIn,callbackFunc
                 if(!utils.obj_valid_key(self.listeners,k)){continue;}
-                //self.listeners[k].doesMatch(req_file,reqMethod,port)
+                //self.listeners[k].doesMatch(req_file,reqMethod,port,req)
                 (function(key){
                     var tmp_schema=merge(true,{},task_schema,{'indexkey':key});
                     tmp_schema.callback=function(){
@@ -306,10 +306,10 @@ module.exports = function(){
                                 task_check(tasks);
                             }else{
 //console.log("-"+key,"-\nreq_file: ",req_file,"\n\tport",port,"self.listeners[key]: ",self.listeners[key],"\n\t",self.listeners[key].constructor);
-                                self.listeners[key].doesMatch(req_file,reqMethod,port,function(err, res){
+                                self.listeners[key].doesMatch(req_file,reqMethod,port,req,function(err, resp){
                                     if(!err || err===null){
                                         tmp_schema.success=true;
-                                        tmp_schema.result=res;
+                                        tmp_schema.result=resp;
                                         arg_payload.is_requestable=true;
                                     }
                                     tmp_schema.complete=true;
